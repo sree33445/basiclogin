@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Signup</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #343a40;
+        }
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header h2 {
+            font-weight: 600;
+            color: #212529;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .auth-header p {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #6c757d;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            background-color: transparent;
+        }
+        .nav-tabs .nav-link:hover:not(.active) {
+            color: #0d6efd;
+            border-bottom: 3px solid #e9ecef;
+        }
+        .tab-content {
+            padding: 1.5rem 0;
+        }
+        .form-label {
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+        }
+        .btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #146c43;
+        }
+        .forgot-password {
+            font-size: 0.9rem;
+            text-align: right;
+        }
+        .social-login {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .social-login p {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .social-login p:before, 
+        .social-login p:after {
+            content: "";
+            position: absolute;
+            height: 1px;
+            width: 30%;
+            background-color: #dee2e6;
+            top: 50%;
+        }
+        .social-login p:before {
+            left: 0;
+        }
+        .social-login p:after {
+            right: 0;
+        }
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            color: #fff;
+        }
+        .password-toggle {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2>Welcome</h2>
+                <p>Please login or create an account to continue</p>
+            </div>
+            
+            <ul class="nav nav-tabs" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Login</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab">Sign Up</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="authTabsContent">
+                <!-- Login Form -->
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="loginEmail" placeholder="name@example.com" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                                <span class="input-group-text password-toggle"><i class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+                        <div class="mb-4 forgot-password">
+                            <a href="#" class="text-decoration-none">Forgot password?</a>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary" onclick="login()">Login</button>
+                        </div>
+                        
+                        <div class="social-login">
+                            <p>Or login with</p>
+                            <div>
+                                <a href="#" class="social-btn bg-primary"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="social-btn bg-info"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-btn bg-danger"><i class="fab fa-google"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Signup Form -->
+                <div class="tab-pane fade" id="signup" role="tabpanel">
+                    <form id="signupForm">
+                        <div class="mb-4">
+                            <label for="signupName" class="form-label">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="signupName" placeholder="Enter your full name" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="signupEmail" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="signupEmail" placeholder="name@example.com" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="signupPassword" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" required>
+                                <span class="input-group-text password-toggle"><i class="fas fa-eye"></i></span>
+                            </div>
+                            <div class="form-text mt-2">Password must be at least 8 characters long and include a number and special character.</div>
+                        </div>
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a></label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success" onclick="signup()">Create Account</button>
+                        </div>
+                        
+                        <div class="social-login">
+                            <p>Or sign up with</p>
+                            <div>
+                                <a href="#" class="social-btn bg-primary"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="social-btn bg-info"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-btn bg-danger"><i class="fab fa-google"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Password toggle visibility
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const passwordInput = this.previousElementSibling;
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
+        async function signup() {
+            try {
+                const name = document.getElementById("signupName").value;
+                const email = document.getElementById("signupEmail").value;
+                const password = document.getElementById("signupPassword").value;
+                const termsChecked = document.getElementById("termsCheck").checked;
+                
+                if (!termsChecked) {
+                    alert("Please agree to the Terms of Service and Privacy Policy");
+                    return;
+                }
+
+                const response = await axios.post("http://localhost:5000/auth/signup", { name, email, password });
+                alert("Signup successful! Please log in.");
+                
+                // Switch to login tab
+                const loginTabEl = document.querySelector('#login-tab');
+                const tab = new bootstrap.Tab(loginTabEl);
+                tab.show();
+            } catch (error) {
+                alert("Signup failed: " + (error.response?.data?.message || error.message));
+            }
+        }
+
+        async function login() {
+            try {
+                const email = document.getElementById("loginEmail").value;
+                const password = document.getElementById("loginPassword").value;
+
+                const response = await axios.post("http://localhost:5000/auth/login", { email, password });
+                alert("Login successful! Token: " + response.data.token);
+                localStorage.setItem("authToken", response.data.token);
+            } catch (error) {
+                alert("Login failed: " + (error.response?.data?.message || error.message));
+            }
+        }
+    </script>
+</body>
+</html>
